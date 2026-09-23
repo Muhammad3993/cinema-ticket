@@ -230,7 +230,7 @@ button.seat:hover:not(:disabled) {
 
 @media (max-width: 560px) {
   .details__hero {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 2;
   }
 
   .details__hero-content {

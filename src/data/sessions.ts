@@ -1,7 +1,7 @@
 import type { MovieSession, Seat, SeatType } from "../types";
 
 const ROWS = ["A", "B", "C", "D", "E"];
-const SEATS_PER_ROW = 18;
+const SEATS_PER_ROW = 6;
 const VIP_ROWS = ["A", "B"];
 
 const createSeats = (purchased: string[]): Seat[] => {
