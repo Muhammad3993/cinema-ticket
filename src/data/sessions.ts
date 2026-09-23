@@ -1,4 +1,5 @@
 import type { MovieSession, Seat, SeatType } from "../types";
+import { getPurchasedSeatIds } from "../utils/storage";
 
 const ROWS = ["A", "B", "C", "D", "E"];
 const SEATS_PER_ROW = 6;
@@ -73,5 +74,17 @@ export const sessions: MovieSession[] = [
   },
 ];
 
-export const getSessionById = (id: string): MovieSession | undefined =>
-  sessions.find((session) => session.id === id);
+export const getSessionById = (id: string): MovieSession | undefined => {
+  const session = sessions.find((s) => s.id === id);
+  if (!session) return undefined;
+
+  const purchased = new Set(getPurchasedSeatIds(id));
+  if (purchased.size === 0) return session;
+
+  return {
+    ...session,
+    seats: session.seats.map((seat) =>
+      purchased.has(seat.id) ? { ...seat, status: "purchased" } : seat
+    ),
+  };
+};

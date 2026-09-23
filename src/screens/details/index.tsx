@@ -1,16 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  FiArrowLeft,
-  FiCalendar,
-  FiClock,
-  FiGlobe,
-  FiMapPin,
-} from "react-icons/fi";
+import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
 import { getSessionById } from "../../data/sessions";
 import type { Seat } from "../../types";
-import Price from "../../components/price";
-import Poster from "../../components/poster";
+import { addPurchasedSeats } from "../../utils/storage";
+import Popup from "../../components/popup";
+import Hero from "./components/hero";
+import SeatMap from "./components/seat-map";
+import BookingSummary from "./components/booking-summary";
 import "./details.css";
 
 const PRICE: Record<Seat["type"], number> = {
@@ -22,6 +19,7 @@ const Details = () => {
   const { id } = useParams<{ id: string }>();
   const session = id ? getSessionById(id) : undefined;
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showPopup, setShowPopup] = useState(false);
 
   const rows = useMemo(() => {
     if (!session) return [];
@@ -61,103 +59,44 @@ const Details = () => {
   const selectedSeats = session.seats.filter((seat) => selected.has(seat.id));
   const total = selectedSeats.reduce((sum, seat) => sum + PRICE[seat.type], 0);
 
+  const handleBuy = () => {
+    addPurchasedSeats(
+      session.id,
+      selectedSeats.map((seat) => seat.id)
+    );
+    setSelected(new Set());
+    setShowPopup(true);
+  };
+
   return (
     <div className="details">
       <Link to="/" className="details__back">
         <FiArrowLeft /> Back to sessions
       </Link>
 
-      <div className="details__hero">
-        <Poster
-          src={session.poster}
-          alt={session.title}
-          color={session.color}
-          className="details__hero-media"
-        />
-        <div className="details__hero-overlay" />
+      <Hero session={session} />
 
-        <div className="details__hero-content">
-          <h1>{session.title}</h1>
-          <p className="details__description">{session.description}</p>
+      <SeatMap rows={rows} selected={selected} onToggle={toggleSeat} />
 
-          <ul className="details__meta">
-            <li>
-              <FiMapPin /> {session.cinema} &middot; {session.hall}
-            </li>
-            <li>
-              <FiCalendar /> {session.date}
-            </li>
-            <li>
-              <FiClock /> {session.time} &middot; {session.duration}
-            </li>
-            <li>
-              <FiGlobe /> {session.language}
-            </li>
-          </ul>
-        </div>
-      </div>
+      <BookingSummary
+        count={selectedSeats.length}
+        total={total}
+        onBuy={handleBuy}
+      />
 
-      <div className="hall">
-        <div className="hall__screen">SCREEN</div>
-
-        <div className="hall__rows">
-          {rows.map(([row, seats]) => (
-            <div className="hall__row" key={row}>
-              <span className="hall__row-label">{row}</span>
-              {seats.map((seat) => {
-                const status =
-                  seat.status === "purchased"
-                    ? "purchased"
-                    : selected.has(seat.id)
-                    ? "selected"
-                    : "empty";
-
-                return (
-                  <button
-                    key={seat.id}
-                    type="button"
-                    className={`seat seat--${status} seat--${seat.type}`}
-                    disabled={status === "purchased"}
-                    onClick={() => toggleSeat(seat)}
-                    title={`${seat.id} (${seat.type})`}
-                  >
-                    {seat.number}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-
-        <div className="hall__legend">
-          <span>
-            <i className="seat seat--empty seat--standard" /> Standard
-          </span>
-          <span>
-            <i className="seat seat--empty seat--vip" /> VIP
-          </span>
-          <span>
-            <i className="seat seat--selected" /> Selected
-          </span>
-          <span>
-            <i className="seat seat--purchased" /> Purchased
-          </span>
-        </div>
-      </div>
-
-      <div className="summary">
-        <div className="summary__info">
-          <span>{selectedSeats.length} seat(s) selected</span>
-          <strong><Price value={total} /></strong>
-        </div>
-        <button
-          type="button"
-          className="summary__button"
-          disabled={selectedSeats.length === 0}
-        >
-          Buy Tickets
-        </button>
-      </div>
+      {showPopup && (
+        <Popup onClose={() => setShowPopup(false)}>
+          <FiCheckCircle className="popup__icon" />
+          <p>Chiptalar olindi!</p>
+          <button
+            type="button"
+            className="popup__button"
+            onClick={() => setShowPopup(false)}
+          >
+            OK
+          </button>
+        </Popup>
+      )}
     </div>
   );
 };

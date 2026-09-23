@@ -1,0 +1,46 @@
+.summary {
+  position: sticky;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 24px;
+}
+
+.summary__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary__info span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.summary__info strong {
+  font-size: 20px;
+}
+
+.summary__button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.summary__button:disabled {
+  background: var(--seat-purchased);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.summary__button:not(:disabled):hover {
+  background: var(--primary-hover);
+}
