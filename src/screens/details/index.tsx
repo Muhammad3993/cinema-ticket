@@ -84,10 +84,10 @@ const Details = () => {
         onBuy={handleBuy}
       />
 
-      {showPopup && (
+      {showPopup && ( 
         <Popup onClose={() => setShowPopup(false)}>
           <FiCheckCircle className="popup__icon" />
-          <p>Chiptalar olindi!</p>
+          <p>Tickets purchased!</p>
           <button
             type="button"
             className="popup__button"
